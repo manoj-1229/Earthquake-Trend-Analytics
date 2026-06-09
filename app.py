@@ -18,17 +18,17 @@ def generate_and_load_data():
     filename = "usgs_earthquake_trends_dataset.csv"
     if not os.path.exists(filename):
         np.random.seed(42)
-        num_records = 5000
+        num_records = 2000
         start_date = pd.to_datetime('1970-01-01')
         end_date = pd.to_datetime('2025-12-31')
         
         random_days = np.random.randint(0, (end_date - start_date).days, num_records)
         dates = start_date + pd.to_timedelta(random_days, unit='D')
         
-        latitudes = np.random.uniform(-90, 90, num_records)
+        latitudes = np.random.uniform(-60, 80, num_records)
         longitudes = np.random.uniform(-180, 180, num_records)
         
-        magnitudes = np.random.exponential(scale=1.2, size=num_records) + 2.0
+        magnitudes = np.random.exponential(scale=1.1, size=num_records) + 2.0
         magnitudes = np.clip(magnitudes, 2.0, 9.5)
         magnitudes[0] = 9.2
         
@@ -149,16 +149,17 @@ with tab3:
     map_data = filtered_df[['latitude', 'longitude', 'mag', 'depth', 'place']].dropna()
     
     if not map_data.empty:
-        fig_map = px.scatter_map(
+        fig_map = px.density_map(
             map_data,
             lat="latitude",
             lon="longitude",
-            size="mag",
-            color="place",
+            z="mag",
+            radius=10,
             zoom=1,
+            color_continuous_scale="Viridis",
             hover_name="place",
             hover_data={"mag": True, "depth": True, "latitude": False, "longitude": False},
-            title="Global Seismic Hotspots Plotter"
+            title="Global Seismic Density Heatmap"
         )
         
         fig_map.update_layout(
