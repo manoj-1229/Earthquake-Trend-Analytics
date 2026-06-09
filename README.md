@@ -1,6 +1,6 @@
 # 🌋 Earthquake Trend Analytics Dashboard
 
-An interactive, production-ready data science application built with **Python**, **Streamlit**, and **Plotly** to visualize, parse, and analyze multi-decade global seismic events from 1970 to 2025. 
+An interactive data science application built with **Python**, **Streamlit**, and **Plotly** to visualize and analyze multi-decade global seismic events from 1970 to 2025. 
 
 Live Link: [https://earthquake-trend-analytics.streamlit.app/](https://earthquake-trend-analytics.streamlit.app/)
 
