@@ -61,10 +61,18 @@ st.sidebar.header("🕹️ Control Panel")
 st.sidebar.markdown("Use the filters below to slice the historical seismic records dynamically.")
 
 min_year, max_year = int(df['year'].min()), int(df['year'].max())
-year_range = st.sidebar.slider("Select Year Range", min_year, max_year, (min_year, max_year))
+year_range = st.sidebar.slider(
+    "Select Year Range", 
+    min_year, max_year, (min_year, max_year),
+    help="Filters the data based on the chronological year of occurrence."
+)
 
 min_mag, max_mag = float(df['mag'].min()), float(df['mag'].max())
-mag_range = st.sidebar.slider("Select Magnitude Range (Mw)", min_mag, max_mag, (min_mag, max_mag))
+mag_range = st.sidebar.slider(
+    "Select Magnitude Range (Mw)", 
+    min_mag, max_mag, (min_mag, max_mag),
+    help="Seismic energy scale. Every +1 increase represents roughly 32 times more energy release!"
+)
 
 filtered_df = df[
     (df['year'] >= year_range[0]) & (df['year'] <= year_range[1]) &
@@ -86,6 +94,15 @@ with st.container(border=True):
         col2.metric(label="Max Magnitude", value="N/A")
         col3.metric(label="Average Magnitude", value="N/A")
         col4.metric(label="Average Depth", value="N/A")
+
+if not filtered_df.empty:
+    max_selected_mag = filtered_df['mag'].max()
+    if max_selected_mag >= 7.0:
+        st.error(f"⚠️ **High-Risk Seismic Alert:** The active filters include major catastrophic earthquakes (Max: {max_selected_mag:.1f} Mw). Events above 7.0 cause serious damage to infrastructure and require specialized engineering codes.")
+    elif 5.0 <= max_selected_mag < 7.0:
+        st.warning(f"⚠️ **Moderate Activity Alert:** The active filters contain moderate-to-strong events (Max: {max_selected_mag:.1f} Mw). These are capable of shaking buildings and causing minor localized damage.")
+    else:
+        st.success("✅ **Stable Seismic Window:** The current view contains only minor, micro-seismic events. No major risks or significant infrastructural hazards detected.")
 
 tab1, tab2, tab3 = st.tabs([
     "📊 Temporal & Regional Trends", 
@@ -129,7 +146,7 @@ with tab2:
 
 with tab3:
     st.subheader("Geospatial Distribution of Filtered Seismic Events")
-    map_data = filtered_df[['latitude', 'longitude', 'mag', 'depth']].dropna()
+    map_data = filtered_df[['latitude', 'longitude', 'mag', 'depth', 'place']].dropna()
     
     if not map_data.empty:
         fig_map = px.scatter_map(
@@ -137,11 +154,10 @@ with tab3:
             lat="latitude",
             lon="longitude",
             size="mag",
-            color="mag",
-            color_continuous_scale="Reds",
+            color="place",
             zoom=1,
-            hover_name="mag",
-            hover_data={"depth": True, "latitude": False, "longitude": False},
+            hover_name="place",
+            hover_data={"mag": True, "depth": True, "latitude": False, "longitude": False},
             title="Global Seismic Hotspots Plotter"
         )
         
