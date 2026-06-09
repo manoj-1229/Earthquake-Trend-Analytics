@@ -160,12 +160,30 @@ with tab2:
     st.pyplot(fig)
 
 with tab3:
+    with tab3:
     st.subheader("Geospatial Distribution of Filtered Seismic Events")
-    map_data = filtered_df[['latitude', 'longitude', 'mag', 'depth']].rename(columns={'latitude': 'lat', 'longitude': 'lon'})
+    map_data = filtered_df[['latitude', 'longitude', 'mag', 'depth']].dropna()
     
-    
-    map_data['scaled_marker_size'] = map_data['mag'] * 10 
-    st.map(map_data, size='scaled_marker_size', color='#dc2626')
+    if not map_data.empty:
+        fig_map = px.scatter_map(
+            map_data,
+            lat="latitude",
+            lon="longitude",
+            size="mag",
+            color="mag",
+            color_continuous_scale="Reds",
+            zoom=1,  
+            title="Global Seismic Hotspots"
+        )
+        
+        fig_map.update_layout(
+            margin={"r":0,"t":40,"l":0,"b":0},
+            map_style="open-street-map"
+        )
+        
+        st.plotly_chart(fig_map, use_container_width=True)
+    else:
+        st.warning("No geospatial data available for the selected filters.")
 
 st.markdown("---")
 st.dataframe(filtered_df[['time', 'place', 'mag', 'depth', 'latitude', 'longitude']].sort_values('time', ascending=False).head(100), use_container_width=True)
